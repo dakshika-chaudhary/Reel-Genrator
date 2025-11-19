@@ -1,0 +1,24 @@
+"use client";
+
+import Image from "next/image";
+import { SignIn } from "@clerk/nextjs";
+
+export default function SignInPage() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
+      <div className="flex justify-center items-center">
+        <Image
+          src="/appImages/login.jpg"
+          alt="login"
+          width={500}
+         height={500}
+          className="object-cover"
+        />
+      </div>
+
+      <div className="flex justify-center items-center p-10">
+        <SignIn />
+      </div>
+    </div>
+  );
+}
