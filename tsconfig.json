@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/(auth)/sign-up/[[...sign-up]]/page.tsx", "app/dashboard/layout.tsx"  ],
+, "app/(auth)/sign-up/[[...sign-up]]/page.tsx", "app/dashboard/layout.tsx", "app/api/get-video-script/route.ts"  ],
   "exclude": ["node_modules"]
 }

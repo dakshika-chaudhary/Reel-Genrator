@@ -42,7 +42,7 @@ export default function SelectStyle({ onUserSelect }: SelectStyleProps) {
     const [selectedOption, setSelectedOption] = React.useState<string>('');
     const handleSelect = (style: string) => {
     setSelectedOption(style);
-    onUserSelect("style", style);
+    onUserSelect("imageStyle", style);
   };
     return (
         <div>   
@@ -56,7 +56,7 @@ export default function SelectStyle({ onUserSelect }: SelectStyleProps) {
                      `}>
                         <Image src={item.image} width={100} height={100} alt={item.name} 
                          className="h-40 object-cover rounded-lg w-full"
-                         onClick={()=>setSelectedOption(item.name)}/>
+                         onClick={()=>handleSelect(item.name)}/>
                         <h2 className="text-center bg-black text-white text-sm mt-1">{item.name}</h2>
                      </div>      
 
