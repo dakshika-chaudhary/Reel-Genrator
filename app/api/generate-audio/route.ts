@@ -3,6 +3,9 @@ import textToSpeech from "@google-cloud/text-to-speech";
 import fs from "fs";
 import util from "util";
 import path from "path";
+import { supabaseBrowser } from "@/lib/supabase-browser";
+import { supabaseServer } from "@/lib/supabase-server";
+
 
 interface TTSRequest {
   text: string;
@@ -57,13 +60,54 @@ export async function POST(req: Request) {
   //     url: `/output-${id}.mp3`,
   
       // Save MP3 to public folder
-    const outputFilePath = path.join(process.cwd(), "public", `audio-${id}.mp3`);
-    fs.writeFileSync(outputFilePath, response.audioContent as Buffer);
+    // const outputFilePath = path.join(process.cwd(), "public", `audio-${id}.mp3`);
+    // fs.writeFileSync(outputFilePath, response.audioContent as Buffer);
 
-    console.log("✅ Audio saved:", outputFilePath);
+    // console.log("✅ Audio saved:", outputFilePath);
 
-    // Return permanent URL for frontend
-    return NextResponse.json({ url: `/audio-${id}.mp3` });
+    // // Return permanent URL for frontend
+    // return NextResponse.json({ url: `/audio-${id}.mp3` });
+
+    const fileName = `audio-${id}.mp3`;
+
+    const audio = response.audioContent;
+
+if (!audio) {
+  return NextResponse.json(
+    { error: "Text-to-Speech returned no audioContent" },
+    { status: 500 }
+  );
+}
+
+// Convert audioContent → Buffer safely
+let audioBuffer: Buffer;
+
+if (audio instanceof Uint8Array) {
+  audioBuffer = Buffer.from(audio);
+} else {
+  audioBuffer = Buffer.from(audio, "base64");
+}
+
+
+
+const { data, error } = await supabaseServer.storage
+  .from("audio-file") // your bucket name
+  .upload(fileName, audioBuffer, {
+    contentType: "audio/mpeg",
+    upsert: true,
+  });
+
+if (error) {
+  console.error("Upload error:", error);
+  return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+}
+
+// Get public URL
+const { data: publicUrl } =supabaseBrowser.storage
+  .from("audio-file")
+  .getPublicUrl(fileName);
+
+return NextResponse.json({ url: publicUrl.publicUrl });
 
   } catch (error: any) {
     console.error("TTS Error:", error);
