@@ -124,10 +124,15 @@ export async function POST(req: Request) {
     const listFile = path.join(tempDir, "list.txt");
     let listText = "";
 
-    for (let filePath of localImagePaths) {
-      listText += `file '${filePath.replace(/\\/g, "/")}'\n`;
-      listText += `duration 3\n`;
-    }
+   // normal entries
+localImagePaths.forEach((filePath) => {
+  listText += `file '${filePath.replace(/\\/g, "/")}'\n`;
+  listText += `duration 3\n`;
+});
+
+// repeat the last frame WITHOUT duration
+const last = localImagePaths[localImagePaths.length - 1];
+listText += `file '${last.replace(/\\/g, "/")}'\n`;
 
     fs.writeFileSync(listFile, listText);
 
@@ -138,35 +143,43 @@ export async function POST(req: Request) {
     fs.writeFileSync(audioPath, audioBuffer);
 
     // 5️⃣ Final video output inside public/generated-videos
-    const outputDir = path.join(process.cwd(),"videos");
+    const outputDir = path.join(process.cwd(), "public", "videos");
+
     fs.mkdirSync(outputDir, { recursive: true });
 
     const outputPath = path.join(outputDir, `${id}.mp4`);
+      console.log("Saving to:", outputPath);
+console.log("Folder exists:", fs.existsSync(outputDir));
 
     // 6️⃣ FFmpeg command (ABSOLUTE PATHS)
-    const ffmpegCmd = `
-      ffmpeg -y -f concat -safe 0 -i "${listFile}" \
-      -i "${audioPath}" \
-      -vf "scale=1080:1920,format=yuv420p" \
-      -shortest "${outputPath}"
-    `;
+    // const ffmpegCmd = `
+    //   ffmpeg -y -f concat -safe 0 -i "${listFile}" \
+    //   -i "${audioPath}" \
+    //   -vf "scale=1080:1920,format=yuv420p" \
+    //   -shortest "${outputPath}"
+    // `;
+
+    const ffmpegCmd = `ffmpeg -y -f concat -safe 0 -i "${listFile}" -i "${audioPath}" -vf "scale=1080:1920,format=yuv420p" -shortest "${outputPath}"`;
+
 
     console.log("🎥 FFmpeg running:", ffmpegCmd);
 
     // 7️⃣ Run FFmpeg
     await new Promise((resolve, reject) => {
-      exec(ffmpegCmd, (err) => {
-        if (err) reject(err);
-        else resolve(true);
-      });
-    });
+  exec(ffmpegCmd, (err, stdout, stderr) => {
+    console.log("STDERR:", stderr);
+    if (err) reject(err);
+    else resolve(true);
+  });
+});
+console.log("process.cwd() =", process.cwd());
 
     console.log("🎉 Video created at:", outputPath);
     console.log("Output path:", outputPath, "Exists:", fs.existsSync(outputPath));
 
 
     return NextResponse.json({
-      videoUrl: `/api/video-file?id=${id}`,
+      videoUrl: `/videos/${id}.mp4`,
     });
 
   } catch (err:any) {

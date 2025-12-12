@@ -43,10 +43,12 @@ const GenerateVideo = async (id:string) => {
     });
 
     console.log("🎞 Final Video URL:", resp.data.videoUrl);
-    setFinalVideoUrl(resp.data.videoUrl);
+    // setFinalVideoUrl(resp.data.videoUrl);
+setFinalVideoUrl(`/videos/${id}.mp4`);
 
+alert("🎉 Video created!\nURL: " + `/api/video-file?id=${id}` );
 
-    alert("🎉 Video created!\nURL: " + resp.data.videoUrl);
+    // alert("🎉 Video created!\nURL: " + resp.data.videoUrl);
 
   } catch (error) {
     console.error("❌ Video generation failed", error);
