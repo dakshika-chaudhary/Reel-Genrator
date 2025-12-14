@@ -8,6 +8,7 @@ import SelectDuration from "./_components/SelectDuration";
 import CustomLoading from "./_components/CustomLoading";
 import {v4 as uuidv4} from 'uuid';
 import { useContext } from "react";
+import VideoPopup from "./_components/VideoPopup";
 
 
 export default function CreateNewPage() {
@@ -27,10 +28,9 @@ const MAX_IMAGES = 1;
 const [sentences, setSentences] = useState<string[]>([]);
 const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
 const [videoStarted, setVideoStarted] = useState(false);
-
+const [showPopup, setShowPopup] = useState(false);
 const [videoId, setVideoId] = useState("");
  
-
 const GenerateVideo = async (id:string) => {
   try {
     setLoading(true);
@@ -45,10 +45,9 @@ const GenerateVideo = async (id:string) => {
     console.log("🎞 Final Video URL:", resp.data.videoUrl);
     // setFinalVideoUrl(resp.data.videoUrl);
 setFinalVideoUrl(`/videos/${id}.mp4`);
+console.log("🎉 Video created at:", `/videos/${id}.mp4`);
+setShowPopup(true);
 
-alert("🎉 Video created!\nURL: " + `/api/video-file?id=${id}` );
-
-    // alert("🎉 Video created!\nURL: " + resp.data.videoUrl);
 
   } catch (error) {
     console.error("❌ Video generation failed", error);
@@ -250,7 +249,7 @@ const GenerateImages = async (caption: string,id:string) => {
 
   return (
     <div className="p-3">
-      <h1 className="font-bold text-4xl text-primary text-center">
+      <h1 className="font-bold text-4xl text-white text-center">
         Create New Dashboard
       </h1>
 
@@ -260,7 +259,7 @@ const GenerateImages = async (caption: string,id:string) => {
         <SelectDuration onUserSelect={onHandleInputChange} />
 
         <button
-          className="bg-primary px-6 py-2 text-white rounded mt-5"
+          className="bg-amber-500 px-6 py-2 text-white rounded mt-5"
           onClick={onCreateClickHandler}
         >
           Create video
@@ -268,41 +267,7 @@ const GenerateImages = async (caption: string,id:string) => {
 
       </div>
 
-      
-        {audioUrl && (
-  <audio controls src={audioUrl} className="mt-5 w-full" />
-)}
-{generatedImages.length > 0 && (
-  <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-
-    {generatedImages.map((img, idx) => (
-      <div key={idx} className="relative w-full h-[350px] rounded overflow-hidden">
-
-        <img 
-          src={img} 
-          alt={`Generated ${idx}`} 
-          className="w-full h-full object-cover"
-        />
-
-        {/* Caption overlay */}
-        <div
-          className="
-            absolute bottom-3 left-1/2 
-            -translate-x-1/2
-            bg-black/60 text-white 
-            px-4 py-2 rounded-lg
-            max-w-[90%] text-center text-sm
-          "
-        >
-          {sentences[idx]}
-        </div>
-
-      </div>
-    ))}
-
-  </div>
-)}
-<div>
+ {/* <div>
   {finalVideoUrl && (
   <div className="mt-5">
     <h2 className="text-xl font-bold mb-2">Your Video</h2>
@@ -321,12 +286,19 @@ const GenerateImages = async (caption: string,id:string) => {
     >
       Download Video
     </a>
-  </div>
+  </div> 
+ )}
+
+</div> */}
+
+{showPopup && (
+  <VideoPopup 
+    videoUrl={finalVideoUrl} 
+    onClose={() => setShowPopup(false)} 
+  />
 )}
 
-</div>
-  <CustomLoading loading={loading} />
-  
+{loading && <CustomLoading loading={loading} />}
     </div>
   );
 }

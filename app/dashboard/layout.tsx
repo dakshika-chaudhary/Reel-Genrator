@@ -1,29 +1,34 @@
-"use client"
-import React, { ReactNode } from 'react';
-import Header from './_components/Header';
-import SideNav from './_components/SideNav';  
-
-import { useContext,useState } from 'react';
+"use client";
+import React, { ReactNode } from "react";
+import Header from "./_components/Header";
+import SideNav from "./_components/SideNav";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 function DashboardLayout({ children }: DashboardLayoutProps) {
-
-
   return (
-
-    <div>
-      <div className='hidden md:block h-screen bg-white fixed mt-[65px] w-64'>
+    <div
+      className="
+        min-h-screen 
+        bg-gradient-to-br from-black via-[#0b0018] to-[#020205]
+        text-white
+        flex
+      "
+    >
+      {/* SIDEBAR */}
+      <div className="hidden md:block fixed w-64 h-screen">
         <SideNav />
       </div>
-      <div>
+
+      {/* MAIN CONTENT */}
+      <div className="flex-1 md:ml-64">
         <Header />
-        <div className='md:ml-64 mt-[65px]'>{children}</div>
+
+        <div className="p-6 mt-[70px]">{children}</div>
       </div>
     </div>
-
   );
 }
 
