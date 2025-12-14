@@ -44,10 +44,21 @@ const GenerateVideo = async (id:string) => {
 
     console.log("🎞 Final Video URL:", resp.data.videoUrl);
     // setFinalVideoUrl(resp.data.videoUrl);
-setFinalVideoUrl(`/videos/${id}.mp4`);
-console.log("🎉 Video created at:", `/videos/${id}.mp4`);
-setShowPopup(true);
+ const videoPath = `/videos/${id}.mp4`;
+    setFinalVideoUrl(videoPath);
+    setShowPopup(true);
 
+ // ✅ SAVE VIDEO METADATA
+    await axios.post("/api/save-video", {
+      videoId: id,
+      videoUrl: videoPath,
+      audioUrl,
+      images: generatedImages,
+      captions: sentences,
+      topic: formData.topic,
+      style: formData.imageStyle,   // ← comes from SelectStyle
+      duration: formData.duration,
+    });
 
   } catch (error) {
     console.error("❌ Video generation failed", error);
@@ -267,29 +278,6 @@ const GenerateImages = async (caption: string,id:string) => {
 
       </div>
 
- {/* <div>
-  {finalVideoUrl && (
-  <div className="mt-5">
-    <h2 className="text-xl font-bold mb-2">Your Video</h2>
-
-    <video 
-      controls 
-      className="w-full rounded shadow"
-      src={finalVideoUrl}
-    >
-    </video>
-
-    <a 
-      href={finalVideoUrl} 
-      download 
-      className="text-blue-500 underline mt-2 block"
-    >
-      Download Video
-    </a>
-  </div> 
- )}
-
-</div> */}
 
 {showPopup && (
   <VideoPopup 

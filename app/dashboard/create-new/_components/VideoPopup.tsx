@@ -23,7 +23,7 @@ export default function VideoPopup({ videoUrl, onClose }: any) {
         transition={{ duration: 0.25 }}
         className="
           relative
-          w-[90%] md:w-[60%] 
+          w-[60%] md:w-[50%] 
           max-h-[90vh] overflow-y-auto
           rounded-2xl 
           bg-white/10 backdrop-blur-xl 
@@ -57,7 +57,7 @@ export default function VideoPopup({ videoUrl, onClose }: any) {
           controls
           src={videoUrl}
           className="
-            w-full rounded-xl shadow-xl 
+            w-full rounded-xl shadow-xl h-70
             border border-white/20 
           "
         />
