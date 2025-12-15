@@ -259,12 +259,12 @@ const GenerateImages = async (caption: string,id:string) => {
 
 
   return (
-    <div className="p-3">
-      <h1 className="font-bold text-4xl text-white text-center">
+    <div className="p-1">
+      {/* <h1 className="font-bold text-4xl text-white text-center">
         Create New Dashboard
-      </h1>
+      </h1> */}
 
-      <div className="mt-10 shadow-md p-10">
+      <div className="shadow-md">
         <SelectTopic onUserSelect={onHandleInputChange} />
         <SelectStyle onUserSelect={onHandleInputChange} />
         <SelectDuration onUserSelect={onHandleInputChange} />

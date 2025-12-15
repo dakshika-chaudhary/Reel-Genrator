@@ -123,7 +123,26 @@ export default function AccountPage() {
                 >
                   Download
                 </a>
-              </div>
+              
+
+              <button
+  onClick={async () => {
+    if (!confirm("Delete this video?")) return;
+
+    await axios.delete("/api/delete-video", {
+      data: { videoId: video.videoId },
+    });
+
+    setVideos((prev) =>
+      prev.filter((v) => v.videoId !== video.videoId)
+    );
+  }}
+  className="text-red-400 text-sm hover:underline"
+>
+  🗑️ Delete
+</button>
+</div>
+
 
               <p className="text-xs text-gray-400 mt-2">
                 {new Date(video.createdAt).toLocaleDateString()}

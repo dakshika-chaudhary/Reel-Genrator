@@ -26,7 +26,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex-1 md:ml-64">
         <Header />
 
-        <div className="p-6 mt-[70px]">{children}</div>
+        <div className="p-4 mt-[70px]">{children}</div>
       </div>
     </div>
   );

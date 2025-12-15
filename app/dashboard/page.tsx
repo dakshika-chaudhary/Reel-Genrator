@@ -7,7 +7,7 @@ import Link from 'next/dist/client/link';
 function Dashboard(){
    const [videoList,setVideoList] = React.useState<Array<any>>([])
    return(
-    <div className='p-4'>
+    <div className='p-3'>
       <div className='flex justify-between items-center'>
          <h2 className='font-bold text-2xl text-white'>Dashboard</h2>
          <Link href={'/dashboard/create-new'}><Button>+ Create New</Button></Link>
