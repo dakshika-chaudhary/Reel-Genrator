@@ -5,6 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../_components/Header";
+import { useRouter } from "next/navigation";
+
 
 type Video = {
   _id: string;
@@ -15,6 +17,8 @@ type Video = {
 };
 
 export default function AccountPage() {
+  const router = useRouter();
+
   const { user, isLoaded } = useUser();
   const [videos, setVideos] = useState<Video[]>([]);
   const [filter, setFilter] = useState("all");
@@ -110,38 +114,49 @@ export default function AccountPage() {
                 controls
                 className="rounded-xl w-full"
               />
+<div className="flex justify-between items-center mt-4 gap-3">
+  <span className="text-xs px-4 py-1 rounded-full bg-purple-600/20">
+    {video.style}
+  </span>
 
-              <div className="flex justify-between items-center mt-4">
-                <span className="text-xs px-4 py-1 rounded-full bg-purple-600/20">
-                  {video.style}
-                </span>
+  <div className="flex gap-4">
+    {/* DOWNLOAD */}
+    <a
+      href={video.videoUrl}
+      download
+      className="text-sm text-blue-400 hover:underline"
+    >
+      ⬇ Download
+    </a>
 
-                <a
-                  href={video.videoUrl}
-                  download
-                  className="text-sm text-blue-400 hover:underline"
-                >
-                  Download
-                </a>
-              
+    {/* EDIT */}
+    <button
+      onClick={() => router.push(`/dashboard/edit/${video.videoId}`)}
+      className="text-yellow-400 text-sm hover:underline"
+    >
+      ✏ Edit
+    </button>
 
-              <button
-  onClick={async () => {
-    if (!confirm("Delete this video?")) return;
+    {/* DELETE */}
+    <button
+      onClick={async () => {
+        if (!confirm("Delete this video?")) return;
 
-    await axios.delete("/api/delete-video", {
-      data: { videoId: video.videoId },
-    });
+        await axios.delete("/api/delete-video", {
+          data: { videoId: video.videoId },
+        });
 
-    setVideos((prev) =>
-      prev.filter((v) => v.videoId !== video.videoId)
-    );
-  }}
-  className="text-red-400 text-sm hover:underline"
->
-  🗑️ Delete
-</button>
+        setVideos((prev) =>
+          prev.filter((v) => v.videoId !== video.videoId)
+        );
+      }}
+      className="text-red-400 text-sm hover:underline"
+    >
+      🗑 Delete
+    </button>
+  </div>
 </div>
+
 
 
               <p className="text-xs text-gray-400 mt-2">

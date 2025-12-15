@@ -5,10 +5,11 @@ import React from "react";
 import Image from "next/image";
 
 interface SelectStyleProps {
+  value?: string;
   onUserSelect: (fieldName: string, fieldValue: string) => void;
 }
 
-export default function SelectStyle({ onUserSelect }: SelectStyleProps) {
+export default function SelectStyle({ value, onUserSelect }: SelectStyleProps) {
   const styleOptions = [
     { name: "Realistic", image: "/appImages/realistic.png" },
     { name: "Cartoon", image: "/appImages/cartoon.png" },
@@ -19,7 +20,11 @@ export default function SelectStyle({ onUserSelect }: SelectStyleProps) {
     { name: "Watercolor", image: "/appImages/watercolor.png" },
   ];
 
-  const [selectedOption, setSelectedOption] = React.useState<string>("");
+   const [selectedOption, setSelectedOption] = React.useState<string>(value || "");
+
+   React.useEffect(() => {
+    if (value) setSelectedOption(value);
+  }, [value]);
 
   const handleSelect = (style: string) => {
     setSelectedOption(style);

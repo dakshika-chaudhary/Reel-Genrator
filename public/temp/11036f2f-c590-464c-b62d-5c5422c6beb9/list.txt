@@ -1,0 +1,5 @@
+file 'C:/Users/HP/Desktop/reelGenerator/my-app/public/temp/11036f2f-c590-464c-b62d-5c5422c6beb9/img0.jpg'
+duration 3
+file 'C:/Users/HP/Desktop/reelGenerator/my-app/public/temp/11036f2f-c590-464c-b62d-5c5422c6beb9/img1.jpg'
+duration 3
+file 'C:/Users/HP/Desktop/reelGenerator/my-app/public/temp/11036f2f-c590-464c-b62d-5c5422c6beb9/img1.jpg'

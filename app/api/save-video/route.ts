@@ -13,10 +13,17 @@ export async function POST(req: Request) {
 
   await connectDB();
 
-  const video = await Video.create({
-    userId,
-    ...body
-  });
+const video = await Video.findOneAndUpdate(
+  { videoId: body.videoId, userId },
+  { $set: body },
+  {
+    new: true,
+    upsert: true,
+    runValidators: true,
+  }
+);
+
+
 
   return NextResponse.json({ success: true, video });
 }
