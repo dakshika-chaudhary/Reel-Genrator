@@ -80,7 +80,7 @@ export default function SelectStyle({ onUserSelect }: SelectStyleProps) {
     { name: "Realistic", image: "/appImages/realistic.png" },
     { name: "Cartoon", image: "/appImages/cartoon.png" },
     { name: "Anime", image: "/appImages/anime.png" },
-    { name: "Sketch", image: "/appImages/sketch.png" },
+    { name: "Sketch", image: "/appImages/sketch.jpg" },
     { name: "Pixel Art", image: "/appImages/pixelArt.png" },
     { name: "3D", image: "/appImages/3d.png" },
     { name: "Watercolor", image: "/appImages/watercolor.png" },
