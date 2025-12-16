@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,7 +8,6 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../_components/Header";
 import { useRouter } from "next/navigation";
-
 
 type Video = {
   _id: string;
@@ -18,21 +19,25 @@ type Video = {
 
 export default function AccountPage() {
   const router = useRouter();
-
   const { user, isLoaded } = useUser();
+
   const [videos, setVideos] = useState<Video[]>([]);
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const res = await axios.get("/api/my-video"); // ✅ FIXED
-      setVideos(res.data);
+      try {
+        const res = await axios.get("/api/my-video");
+        setVideos(res.data);
+      } catch (err) {
+        console.error("Failed to fetch videos", err);
+      }
     };
     fetchVideos();
   }, []);
 
   if (!isLoaded) {
-    return <div className="p-10 text-white">Loading account...</div>;
+    return <div className="p-6 text-white">Loading account...</div>;
   }
 
   const filteredVideos =
@@ -43,33 +48,39 @@ export default function AccountPage() {
         );
 
   return (
-    <div className="min-h-screen  text-white bg-black">
+    <div className="min-h-screen bg-black text-white px-4 sm:px-8 lg:px-12">
       
       {/* ================= PROFILE ================= */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="
-          flex items-center gap-6 mb-12
+          flex flex-col sm:flex-row
+          items-center sm:items-start
+          gap-4 sm:gap-6
+          mb-8 sm:mb-12
+          text-center sm:text-left
           bg-white/5 backdrop-blur-2xl
           border border-white/20
-          rounded-2xl p-6 shadow-xl
+          rounded-2xl p-5 sm:p-6 shadow-xl
         "
       >
         <img
           src={user?.imageUrl}
           alt="profile"
-          className="w-24 h-24 rounded-full border border-white/20"
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-white/20"
         />
 
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-xl sm:text-3xl font-bold">
             {user?.fullName || "User"}
           </h1>
-          <p className="text-gray-400">
+
+          <p className="text-sm sm:text-base text-gray-400">
             {user?.primaryEmailAddress?.emailAddress}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Member since{" "}
             {new Date(user?.createdAt || "").toLocaleDateString()}
           </p>
@@ -77,28 +88,35 @@ export default function AccountPage() {
       </motion.div>
 
       {/* ================= FILTERS ================= */}
-      <div className="flex gap-4 mb-10">
-        {["all", "Realistic", "Anime","Cartoon","Sketch","3D","Watercolor"].map((type) => (
-          <button
-            key={type}
-            onClick={() => setFilter(type)}
-            className={`px-6 py-2 rounded-xl border transition-all
-              ${
-                filter === type
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 border-transparent"
-                  : "border-white/20 hover:bg-white/10"
-              }`}
-          >
-            {type}
-          </button>
-        ))}
+      <div className="flex gap-3 mb-8 overflow-x-auto scrollbar-hide">
+        {["all", "Realistic", "Anime", "Cartoon", "Sketch", "3D", "Watercolor"].map(
+          (type) => (
+            <button
+              key={type}
+              onClick={() => setFilter(type)}
+              className={`px-4 sm:px-6 py-2 text-sm sm:text-base rounded-xl border transition-all whitespace-nowrap
+                ${
+                  filter === type
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 border-transparent"
+                    : "border-white/20 hover:bg-white/10"
+                }`}
+            >
+              {type}
+            </button>
+          )
+        )}
       </div>
 
       {/* ================= VIDEOS ================= */}
       {filteredVideos.length === 0 ? (
-        <p className="text-gray-400">No videos created yet.</p>
+        <div className="text-center text-gray-400 py-16 sm:py-24">
+          <p className="text-lg">No videos yet 🎬</p>
+          <p className="text-sm mt-2">
+            Create your first AI video to see it here.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filteredVideos.map((video) => (
             <motion.div
               key={video._id}
@@ -106,62 +124,74 @@ export default function AccountPage() {
               className="
                 bg-white/5 backdrop-blur-xl
                 border border-white/10
-                rounded-2xl p-4 shadow-xl
+                rounded-2xl p-3 sm:p-4 shadow-xl
               "
             >
+              {/* 🔥 REDUCED VIDEO SIZE FOR MOBILE */}
               <video
                 src={video.videoUrl}
                 controls
-                className="rounded-xl w-full"
+                preload="metadata"
+                className="
+                  w-full
+                  rounded-xl
+                  aspect-video
+                  max-h-[200px] sm:max-h-none
+                  object-cover
+                "
               />
-<div className="flex justify-between items-center mt-4 gap-3">
-  <span className="text-xs px-4 py-1 rounded-full bg-purple-600/20">
-    {video.style}
-  </span>
 
-  <div className="flex gap-4">
-    {/* DOWNLOAD */}
-    <a
-      href={video.videoUrl}
-      download
-      className="text-sm text-blue-400 hover:underline"
-    >
-      ⬇ Download
-    </a>
+              <div className="flex justify-between items-center mt-4 gap-3">
+                <span className="text-[10px] sm:text-xs px-3 sm:px-4 py-1 rounded-full bg-purple-600/20">
+                  {video.style}
+                </span>
 
-    {/* EDIT */}
-    <button
-      onClick={() => router.push(`/dashboard/edit/${video.videoId}`)}
-      className="text-yellow-400 text-sm hover:underline"
-    >
-      ✏ Edit
-    </button>
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+                  <a
+                    href={video.videoUrl}
+                    download
+                    className="text-blue-400 hover:underline"
+                  >
+                    ⬇ Download
+                  </a>
 
-    {/* DELETE */}
-    <button
-      onClick={async () => {
-        if (!confirm("Delete this video?")) return;
+                  <button
+                    onClick={() =>
+                      router.push(`/dashboard/edit/${video.videoId}`)
+                    }
+                    className="text-yellow-400 hover:underline"
+                  >
+                    ✏ Edit
+                  </button>
 
-        await axios.delete("/api/delete-video", {
-          data: { videoId: video.videoId },
-        });
+                  <button
+                    onClick={async () => {
+                      if (!confirm("Delete this video?")) return;
 
-        setVideos((prev) =>
-          prev.filter((v) => v.videoId !== video.videoId)
-        );
-      }}
-      className="text-red-400 text-sm hover:underline"
-    >
-      🗑 Delete
-    </button>
-  </div>
-</div>
+                      try {
+                        await axios.delete("/api/delete-video", {
+                          data: { videoId: video.videoId },
+                        });
 
+                        setVideos((prev) =>
+                          prev.filter((v) => v.videoId !== video.videoId)
+                        );
+                      } catch {
+                        alert("Failed to delete video");
+                      }
+                    }}
+                    className="text-red-400 hover:underline"
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+              </div>
 
-
-              <p className="text-xs text-gray-400 mt-2">
-                {new Date(video.createdAt).toLocaleDateString()}
-              </p>
+              {video.createdAt && (
+                <p className="text-xs text-gray-400 mt-2">
+                  {new Date(video.createdAt).toLocaleDateString()}
+                </p>
+              )}
             </motion.div>
           ))}
         </div>
