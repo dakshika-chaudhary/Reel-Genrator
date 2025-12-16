@@ -91,16 +91,31 @@ import path from "path";
 import fs from "fs";
 import { exec } from "child_process";
 
+
+
 export async function POST(req: Request) {
+
+ 
+
   try {
     const { images, captions, audioUrl, id } = await req.json();
 
+
+   
     if (!images || !captions || !audioUrl || !id) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
+
+      const audioCheck = await fetch(audioUrl);
+if (!audioCheck.ok) {
+  return NextResponse.json(
+    { error: "Audio not ready" },
+    { status: 400 }
+  );
+}
 
     // 1️⃣ TEMP folder inside public
     const tempDir = path.join(process.cwd(), "public", "temp", id);
