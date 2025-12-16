@@ -136,7 +136,7 @@ export default function AccountPage() {
                   w-full
                   rounded-xl
                   aspect-video
-                  max-h-[200px] sm:max-h-none
+                  max-h-[500px] sm:max-h-none
                   object-cover
                 "
               />

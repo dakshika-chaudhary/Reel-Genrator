@@ -55,7 +55,7 @@ export default function SelectTopic({ value, onUserSelect }: SelectTopicProps) {
           className="mt-4"
           placeholder="Enter your custom prompt..."
           onChange={(e) =>
-            onUserSelect?.("topic", e.target.value)
+            onUserSelect?.("customPrompt", e.target.value)
           }
         />
       )}

@@ -7,6 +7,7 @@ import SelectStyle from "./_components/SelectStyle";
 import SelectDuration from "./_components/SelectDuration";
 import CustomLoading from "./_components/CustomLoading";
 import {v4 as uuidv4} from 'uuid';
+import { useParams, useRouter } from "next/navigation";
 import { useContext } from "react";
 import VideoPopup from "./_components/VideoPopup";
 // import { generateVideoPipeline } from "@/lib/videoPipeline";
@@ -14,12 +15,23 @@ import VideoPopup from "./_components/VideoPopup";
 
 
 export default function CreateNewPage() {
+  const params = useParams();
+  const router = useRouter();
+
+  
+  const editingVideoId = params?.videoId as string | undefined;
+  const isEditMode = Boolean(editingVideoId);
+
+ 
   const [formData, setFormData] = useState({
     topic: "",
     customPrompt: "",
     duration: "",
     imageStyle: "",
   });
+
+  const [userTriggered, setUserTriggered] = useState(false);
+
 
   const [loading, setLoading] = useState(false);
   const [videoScript, setVideoScript] = useState<any>(null);
@@ -52,39 +64,88 @@ const GenerateVideo = async (id:string) => {
     setFinalVideoUrl(videoPath);
     setShowPopup(true);
 
- // ✅ SAVE VIDEO METADATA
-    await axios.post("/api/save-video", {
-      videoId: id,
-      videoUrl: videoPath,
-      audioUrl,
-      images: generatedImages,
-      captions: sentences,
-      topic: formData.topic,
-      style: formData.imageStyle,   // ← comes from SelectStyle
-      duration: formData.duration,
-    });
+await axios.post("/api/save-video", {
+  videoId: id,
+  videoUrl: videoPath,
+  audioUrl,
+  images: generatedImages,
+  captions: sentences,
+  topic: formData.topic,
+  style: formData.imageStyle,
+  duration: formData.duration,
+});
+
 
   } catch (error) {
     console.error("❌ Video generation failed", error);
     alert("Video generation failed.");
   }
+setUserTriggered(false);
 
   setLoading(false);
 };
 
+ // ================= LOAD EXISTING VIDEO (EDIT MODE) =================
+ React.useEffect(() => {
+    if (!isEditMode) return;
 
+    const loadVideo = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/api/get-video/${editingVideoId}`);
+
+        const v = res.data;
+
+        setVideoId(v.videoId);
+        setFormData({
+          topic: v.topic,
+          customPrompt: "",
+          duration: v.duration,
+          imageStyle: v.style,
+        });
+
+        setAudioUrl(v.audioUrl);
+        setSentences(v.captions || []);
+        setGeneratedImages(v.images || []);
+        setFinalVideoUrl(v.videoUrl);
+      } catch (err) {
+        console.error("❌ Failed to load video", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideo();
+  }, [isEditMode, editingVideoId]);
 
 React.useEffect(() => {
-  console.log("👀 Watching:", { audioUrl, generatedImages, sentences });
+  if (!videoId) return;
 
-  if (!videoId) return; 
-  
-  if (!videoStarted && audioUrl && generatedImages.length > 0 && sentences.length > 0) {
-    console.log("🎬 All assets ready → Start video generation!");
-    setVideoStarted(true);  // prevent duplicate runs
+  // ❌ Do NOT auto-generate in edit mode
+  // unless user clicked "Update video"
+  if (isEditMode && !userTriggered) return;
+
+  if (
+    !videoStarted &&
+    userTriggered && // ✅ MUST be triggered by button
+    audioUrl &&
+    generatedImages.length > 0 &&
+    sentences.length > 0
+  ) {
+    console.log("🎬 Generating video...");
+    setVideoStarted(true);
     GenerateVideo(videoId);
   }
-}, [audioUrl, generatedImages, sentences, videoStarted,videoId]);
+}, [
+  audioUrl,
+  generatedImages,
+  sentences,
+  videoStarted,
+  userTriggered,
+  videoId,
+  isEditMode
+]);
+
 
 
   const onHandleInputChange = (fieldName: string, fieldValue: string) => {
@@ -96,16 +157,16 @@ React.useEffect(() => {
   const scriptData = "An old, abandoned house stood on a hill, silhouetted against the stormy sky. A lone figure cautiously approaches the front door, the wind howling around them. Inside, dust motes dance in the single ray of moonlight filtering through a cracked window. A faint whisper echoes through the empty halls, 'Leave...'  The figure turns, startled, but sees nothing. The whispering grows louder. The walls seem to close in as the whispers intensify, 'Get out!'"
 
 
-  const onCreateClickHandler = () => {
-    const newId=uuidv4();
-    setVideoId(newId);
-    setVideoStarted(false); 
-    setLoading(true);
-    //  GenerateAudioFile(scriptData);
-    // GetVideoScript();
-       GenerateAudioFile(scriptData,newId);
-    //  GenerateImages(scriptData);
-  };
+ const onCreateClickHandler = () => {
+  const id = isEditMode ? videoId : uuidv4();
+
+  setVideoId(id);
+  setVideoStarted(false);
+  setUserTriggered(true); 
+  setLoading(true);
+
+  GenerateAudioFile(scriptData, id);
+};
 
   
  const GenerateAudioFile = async (scriptData: any,id:string) => {
@@ -269,16 +330,28 @@ const GenerateImages = async (caption: string,id:string) => {
       </h1> */}
 
       <div className="shadow-md">
-        <SelectTopic onUserSelect={onHandleInputChange} />
-        <SelectStyle onUserSelect={onHandleInputChange} />
-        <SelectDuration onUserSelect={onHandleInputChange} />
+       <SelectTopic
+  value={formData.topic}
+  onUserSelect={onHandleInputChange}
+/>
 
-        <button
-          className="bg-amber-500 px-6 py-2 text-white rounded mt-5"
-          onClick={onCreateClickHandler}
-        >
-          Create video
-        </button>
+<SelectStyle
+  value={formData.imageStyle}
+  onUserSelect={onHandleInputChange}
+/>
+
+<SelectDuration
+  value={formData.duration}
+  onUserSelect={onHandleInputChange}
+/>
+
+       <button
+  className="bg-amber-500 px-6 py-2 text-white rounded mt-5"
+  onClick={onCreateClickHandler}
+>
+  {isEditMode ? "Update video" : "Create video"}
+</button>
+
 
       </div>
 
