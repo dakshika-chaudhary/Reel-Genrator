@@ -45,8 +45,6 @@ const [videoStarted, setVideoStarted] = useState(false);
 const [showPopup, setShowPopup] = useState(false);
 const [videoId, setVideoId] = useState("");
 
-
- 
 const GenerateVideo = async (id:string) => {
   try {
     setLoading(true);
@@ -154,10 +152,20 @@ React.useEffect(() => {
       [fieldName]: fieldValue,
     }));
   };
-  const scriptData = "An old, abandoned house stood on a hill, silhouetted against the stormy sky. A lone figure cautiously approaches the front door, the wind howling around them. Inside, dust motes dance in the single ray of moonlight filtering through a cracked window. A faint whisper echoes through the empty halls, 'Leave...'  The figure turns, startled, but sees nothing. The whispering grows louder. The walls seem to close in as the whispers intensify, 'Get out!'"
+
+  const generateScript = async () => {
+  const res = await axios.post("/api/generate-script", {
+    topic: formData.topic,
+    duration: formData.duration,
+    style: formData.imageStyle,
+    customPrompt: formData.customPrompt,
+  });
+
+  return res.data.script;
+};
 
 
- const onCreateClickHandler = () => {
+ const onCreateClickHandler = async() => {
   const id = isEditMode ? videoId : uuidv4();
 
   setVideoId(id);
@@ -165,7 +173,9 @@ React.useEffect(() => {
   setUserTriggered(true); 
   setLoading(true);
 
-  GenerateAudioFile(scriptData, id);
+  const script = await generateScript();
+
+  GenerateAudioFile(script, id);
 };
 
   
